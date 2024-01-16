@@ -6,9 +6,23 @@ type FormValue = {
   channel: string;
 };
 const YouTubeForm = () => {
+  /* Async function to load initial value using api */
+  // const form = useForm<FormValue>({
+  //   defaultValues: async () => {
+  //     const res = await fetch("https://jsonplaceholder.typicode.com/users/1");
+  //     const data = await res.json();
+  //     return {
+  //       username: data.username,
+  //       email: data.email,
+  //       channel: data.username,
+  //     };
+  //   },
+  // });
+
+  /* Use default value */
   const form = useForm<FormValue>({
     defaultValues: {
-      username: "uzair ansari",
+      username: "",
       email: "",
       channel: "",
     },
@@ -19,6 +33,7 @@ const YouTubeForm = () => {
   };
   return (
     <div>
+      <h1>Form field</h1>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <div>
           <label htmlFor="username">Username</label>
@@ -31,8 +46,8 @@ const YouTubeForm = () => {
                 message: "Username is required",
               },
               pattern: {
-                value: /^[a-zA-Z0-9]+$/,
-                message: "Username must be alphanumeric",
+                value: /^[a-zA-Z]+$/,
+                message: "Username must not be alphanumeric",
               },
               validate: {
                 maxLength: (data) => {
