@@ -1,4 +1,4 @@
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, FieldErrors } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
 type FormValue = {
   username: string;
@@ -12,6 +12,7 @@ type FormValue = {
   phNumber: {
     number: string;
   }[];
+  age: number;
 };
 const YouTubeForm = () => {
   /* Async function to load initial value using api */
@@ -30,7 +31,7 @@ const YouTubeForm = () => {
   /* Use default value */
   const form = useForm<FormValue>({
     defaultValues: {
-      username: "",
+      username: "Uzair",
       email: "",
       channel: "",
       social: {
@@ -43,9 +44,18 @@ const YouTubeForm = () => {
           number: "",
         },
       ],
+      age: 0,
     },
   });
-  const { register, control, handleSubmit, formState } = form;
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState,
+    getValues,
+    setValue,
+    watch,
+  } = form;
 
   const { fields, append, remove } = useFieldArray({
     name: "phNumber",
@@ -54,10 +64,27 @@ const YouTubeForm = () => {
   const onSubmit = (data: FormValue) => {
     console.log(data);
   };
+  const handleGetValues = () => {
+    // const x = getValues("age");  // single value
+    // const x = getValues(["age", "username"]); // multiple values
+    const x = getValues(); // entire form values
+    console.log(x);
+  };
+  const handleSetValue = () => {
+    setValue("username", "", {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+  };
+  const onError = (error: FieldErrors<FormValue>) => {
+    console.log(error);
+  };
+  console.log(formState.isDirty, "ks");
   return (
     <div>
       <h1>Form field</h1>
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+      <form onSubmit={handleSubmit(onSubmit, onError)} noValidate>
         <div className="form-control">
           <label htmlFor="username">Username</label>
           <input
@@ -106,7 +133,13 @@ const YouTubeForm = () => {
 
         <div className="form-control">
           <label htmlFor="facebook">Facebook</label>
-          <input type="text" id="facebook" {...register("social.facebook")} />
+          <input
+            type="text"
+            id="facebook"
+            {...register("social.facebook", {
+              disabled: watch("channel") === "",
+            })}
+          />
         </div>
         <div className="form-control">
           <label htmlFor="instagram">Instagram</label>
@@ -175,7 +208,29 @@ const YouTubeForm = () => {
           </button>
         </div>
 
-        <button>Submit</button>
+        <div className="form-control">
+          <label htmlFor="age">Age</label>
+          <input
+            type="number"
+            {...register("age", {
+              valueAsNumber: true,
+              required: {
+                value: true,
+                message: "Age is required",
+              },
+            })}
+          />
+        </div>
+
+        <button disabled={!formState?.isDirty || !formState.isValid}>
+          Submit
+        </button>
+        <button type="button" onClick={handleGetValues}>
+          Get Values
+        </button>
+        <button type="button" onClick={handleSetValue}>
+          Set UserValue
+        </button>
       </form>
       <DevTool control={control} />
     </div>
