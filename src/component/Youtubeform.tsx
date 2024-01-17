@@ -46,6 +46,7 @@ const YouTubeForm = () => {
       ],
       age: 0,
     },
+    mode:'onBlur'
   });
   const {
     register,
@@ -64,6 +65,14 @@ const YouTubeForm = () => {
   const onSubmit = (data: FormValue) => {
     console.log(data);
   };
+  const {
+    errors,
+    isSubmitSuccessful,
+    isSubmitted,
+    isSubmitting,
+    isDirty,
+    // isValid,
+  } = formState;
   const handleGetValues = () => {
     // const x = getValues("age");  // single value
     // const x = getValues(["age", "username"]); // multiple values
@@ -80,7 +89,7 @@ const YouTubeForm = () => {
   const onError = (error: FieldErrors<FormValue>) => {
     console.log(error);
   };
-  console.log(formState.isDirty, "ks");
+  console.log(isSubmitSuccessful, isSubmitted, isSubmitting);
   return (
     <div>
       <h1>Form field</h1>
@@ -106,7 +115,7 @@ const YouTubeForm = () => {
               },
             })}
           />
-          <p className="error">{formState?.errors?.username?.message}</p>
+          <p className="error">{errors?.username?.message}</p>
         </div>
         <div className="form-control">
           <label htmlFor="email">Email</label>
@@ -115,9 +124,18 @@ const YouTubeForm = () => {
             id="email"
             {...register("email", {
               required: "Email is required",
+              validate: {
+                emailValidation: async (fieldValue) => {
+                  const res = await fetch(
+                    `https://jsonplaceholder.typicode.com/users?email=${fieldValue}`
+                  );
+                  const data = await res.json();
+                  return data.length == 0 || "Email already exists";
+                },
+              },
             })}
           />
-          <p className="error">{formState?.errors?.email?.message}</p>
+          <p className="error">{errors?.email?.message}</p>
         </div>
         <div className="form-control">
           <label htmlFor="channel">Channel</label>
@@ -128,7 +146,7 @@ const YouTubeForm = () => {
               required: "Channel is required",
             })}
           />
-          <p className="error">{formState?.errors?.channel?.message}</p>
+          <p className="error">{errors?.channel?.message}</p>
         </div>
 
         <div className="form-control">
@@ -158,10 +176,7 @@ const YouTubeForm = () => {
               },
             })}
           />
-          <p className="error">
-            {" "}
-            {formState?.errors?.phoneNumber?.[1]?.message}
-          </p>
+          <p className="error"> {errors?.phoneNumber?.[1]?.message}</p>
         </div>
 
         <div className="form-control">
@@ -176,9 +191,7 @@ const YouTubeForm = () => {
               },
             })}
           />
-          <p className="error">
-            {formState?.errors?.phoneNumber?.[1]?.message}
-          </p>
+          <p className="error">{errors?.phoneNumber?.[1]?.message}</p>
         </div>
 
         <div>
@@ -222,9 +235,7 @@ const YouTubeForm = () => {
           />
         </div>
 
-        <button disabled={!formState?.isDirty || !formState.isValid}>
-          Submit
-        </button>
+        <button disabled={!isDirty }>Submit</button>
         <button type="button" onClick={handleGetValues}>
           Get Values
         </button>
